@@ -233,41 +233,58 @@ export default class PostService {
 		}
 	}
 
-	public async approvePendingRequest(id, authDetail: IAuthDetail): Promise<ReturnVal<Partial<PostEntity>>> {
+	public async processPendingApprovalRequest(
+		id,
+		approve: string,
+		authDetail: IAuthDetail
+	): Promise<ReturnVal<Partial<PostEntity>>> {
 		const postEntity = await PostEntity.findOne({
 			where: { id, isPendingAdminApproval: true },
 		});
 		if (!postEntity) {
 			return ReturnVal.error(EMessages.INVALID_ID);
 		}
-		let postApproveAction: ELogAction;
-		if (postEntity.pendingAction === EPostPendingAction.DELETE) {
-			postEntity.status = EPostStatus.DELETED;
-			postApproveAction = ELogAction.APPROVE_POST_DELETE_REQUEST;
+		if (approve !== 'true' && approve !== 'false') {
+			return ReturnVal.error(EMessages.APPROVE_PARAM_CAN_EITHER_BE_TRUE_OR_FALSE);
 		}
-		if (postEntity.pendingAction === EPostPendingAction.PUBLISH) {
-			postEntity.status = EPostStatus.PUBLISHED;
-			postApproveAction = ELogAction.APPROVE_POST_UNPUBLISH_REQUEST;
+		if (approve === 'true') {
+			let postApproveAction: ELogAction;
+			if (postEntity.pendingAction === EPostPendingAction.DELETE) {
+				postEntity.status = EPostStatus.DELETED;
+				postApproveAction = ELogAction.APPROVE_POST_DELETE_REQUEST;
+			} else if (postEntity.pendingAction === EPostPendingAction.PUBLISH) {
+				postEntity.status = EPostStatus.PUBLISHED;
+				postApproveAction = ELogAction.APPROVE_POST_UNPUBLISH_REQUEST;
+			} else if (postEntity.pendingAction === EPostPendingAction.REJECT) {
+				postEntity.status = EPostStatus.REJECTED;
+				postApproveAction = ELogAction.APPROVE_POST_DELETE_REQUEST;
+			} else if (postEntity.pendingAction === EPostPendingAction.UNPUBLISH) {
+				postEntity.status = EPostStatus.UNPUBLISHED;
+				postApproveAction = ELogAction.APPROVE_POST_UNPUBLISH_REQUEST;
+			}
+			postEntity.lastModifiedBy = authDetail.currentUser.id;
+			postEntity.pendingAction = null;
+			postEntity.isPendingAdminApproval = false;
+			await postEntity.save();
+			await this.logService.createLog(
+				authDetail,
+				postEntity.id,
+				ELogType.APPROVAL,
+				postApproveAction,
+				ETable.POSTS
+			);
+		} else {
+			postEntity.isPendingAdminApproval = false;
+			postEntity.pendingAction = null;
+			await this.logService.createLog(
+				authDetail,
+				postEntity.id,
+				ELogType.REJECT,
+				ELogAction.REJECT_POST_CHANGES,
+				ETable.POSTS
+			);
 		}
-		if (postEntity.pendingAction === EPostPendingAction.REJECT) {
-			postEntity.status = EPostStatus.REJECTED;
-			postApproveAction = ELogAction.APPROVE_POST_DELETE_REQUEST;
-		}
-		if (postEntity.pendingAction === EPostPendingAction.UNPUBLISH) {
-			postEntity.status = EPostStatus.UNPUBLISHED;
-			postApproveAction = ELogAction.APPROVE_POST_UNPUBLISH_REQUEST;
-		}
-		postEntity.lastModifiedBy = authDetail.currentUser.id;
-		postEntity.pendingAction = null;
-		postEntity.isPendingAdminApproval = false;
-		await postEntity.save();
-		await this.logService.createLog(
-			authDetail,
-			postEntity.id,
-			ELogType.APPROVAL,
-			postApproveAction,
-			ETable.POSTS
-		);
+
 		return ReturnVal.success({ ...postEntity.toJSON(authDetail.currentUser.timezone) });
 	}
 

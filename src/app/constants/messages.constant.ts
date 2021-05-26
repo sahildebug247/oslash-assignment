@@ -38,6 +38,7 @@ enum EMessages {
 	LOGIN_SUCCESSFUL = 'Login Successful',
 	POST_WITH_TITLE_ALREADY_EXISTS = 'Post could not be created, post with same title already exists.',
 	POST_COULD_NOT_BE_CREATED = 'Post could not be created',
+	APPROVE_PARAM_CAN_EITHER_BE_TRUE_OR_FALSE = 'Approve param can either be "true" or "false"',
 }
 
 export default EMessages;

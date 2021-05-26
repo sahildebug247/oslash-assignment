@@ -80,14 +80,15 @@ export default class PostController {
 	/*
       Put Routes
     */
-	@Put('admin/approve-request')
+	@Put('admin/process-approval')
 	@UseGuards(AuthenticationGuard, new RolesGuard([EUserRole.SUPER_ADMIN]))
 	@HandleReturnVal
-	public async approvePendingRequest(
+	public async processPendingApprovalRequest(
 		@Query('id', new StringValidationPipe(EntityIdSchema)) id: string,
+		@Query('approve', new StringValidationPipe(StringLikeFilterSchema)) approve: string,
 		@AuthDetail() authDetail: IAuthDetail
 	): Promise<ReturnVal<Partial<PostEntity>>> {
-		return this.postService.approvePendingRequest(id, authDetail);
+		return this.postService.processPendingApprovalRequest(id, approve, authDetail);
 	}
 
 	@Put('status')
