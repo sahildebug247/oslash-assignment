@@ -2,6 +2,7 @@
 
 import Joi from '@hapi/joi';
 import MomentTZ from 'moment-timezone';
+import { EUserRole } from '../enum/user.enum';
 
 const validTimezones = MomentTZ.tz.names();
 const UserRegisterSchema = Joi.object({
@@ -19,6 +20,10 @@ const UserRegisterSchema = Joi.object({
 
 	timezone: Joi.string()
 		.valid(...Object.values(validTimezones))
+		.required(),
+
+	role: Joi.string()
+		.valid(...Object.values(EUserRole))
 		.required(),
 });
 
@@ -43,6 +48,4 @@ const UserLoginSchema = Joi.object({
 	password: Joi.string().required(),
 });
 
-const isEmailSchema = Joi.string().email({ minDomainSegments: 2 }).required();
-
-export { UserLoginSchema, UserRegisterSchema, isEmailSchema, SelfUpdateSchema, UpdatePasswordSchema };
+export { UserLoginSchema, UserRegisterSchema, SelfUpdateSchema, UpdatePasswordSchema };

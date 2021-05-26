@@ -6,11 +6,14 @@ import UserEntity from '../../db/entities/user.entity';
 import Logger from '../../lib/Logger';
 import ReturnVal from '../../lib/ReturnVal';
 import EMessages from '../constants/messages.constant';
-import EUserStatus from '../enum/user.enum';
+import { ELogAction, ELogType } from '../enum/log.enum';
+import ETable from '../enum/table.enum';
+import EUserStatus, { EUserRole } from '../enum/user.enum';
 import IAuthDetail from '../interfaces/authdetail.interface';
 import IPermsResponse from '../interfaces/perms-response.interface';
 import IUserLoginResponse from '../interfaces/user-login.interface';
 import AuthService from './auth.service';
+import LogService from './log.service';
 import UserPermissionService from './perms/user-perms.service';
 
 const logger = new Logger('UserService');
@@ -19,11 +22,12 @@ const logger = new Logger('UserService');
 export default class UserService {
 	constructor(
 		private readonly authService: AuthService,
+		private readonly logService: LogService,
 		private readonly permissionService: UserPermissionService
 	) {}
 
-	public async register(userRegisterSchema: any): Promise<ReturnVal> {
-		const { name, password, username, timezone } = userRegisterSchema;
+	public async register(userRegisterSchema: any, authDetail: IAuthDetail): Promise<ReturnVal> {
+		const { name, password, username, role, timezone } = userRegisterSchema;
 
 		const permsRes: IPermsResponse = await this.permissionService.canRegisterUser(username);
 		if (!permsRes.success) {
@@ -34,11 +38,19 @@ export default class UserService {
 			password,
 			username,
 			timezone,
+			role,
 			status: EUserStatus.ACTIVE,
 		});
 
 		try {
 			await userEntity.save();
+			await this.logService.createLog(
+				authDetail,
+				userEntity.id,
+				ELogType.CREATE,
+				ELogAction.CREATE_USER,
+				ETable.USERS
+			);
 			return ReturnVal.success(EMessages.USER_REGISTERED, '', 201);
 		} catch (e) {
 			logger.error(`${EMessages.USER_REGISTRATION_FAILED}, e: ${e.message}`);
@@ -101,6 +113,13 @@ export default class UserService {
 				}
 			}
 			await userToUpdate.save();
+			await this.logService.createLog(
+				authDetail,
+				userToUpdate.id,
+				ELogType.UPDATE,
+				ELogAction.UPDATE_USER,
+				ETable.USERS
+			);
 		} catch (e) {
 			return ReturnVal.error(EMessages.USER_COULD_NOT_BE_UPDATED, 500);
 		}
@@ -119,6 +138,13 @@ export default class UserService {
 			if (BCrypt.compareSync(currentPassword, currentUser.password)) {
 				currentUser.password = BCrypt.hashSync(newPassword, 10);
 				await currentUser.save();
+				await this.logService.createLog(
+					authDetail,
+					currentUser.id,
+					ELogType.UPDATE,
+					ELogAction.UPDATE_PASSWORD,
+					ETable.USERS
+				);
 				return ReturnVal.success('', EMessages.PASSWORD_UPDATED_SUCCESSFULLY);
 			}
 		} catch (e) {
@@ -139,6 +165,13 @@ export default class UserService {
 		}
 		userEntity.status = EUserStatus.INACTIVE;
 		await userEntity.save();
+		await this.logService.createLog(
+			authDetail,
+			userEntity.id,
+			ELogType.UPDATE,
+			ELogAction.DEACTIVE_USER,
+			ETable.USERS
+		);
 		return ReturnVal.success(
 			userEntity.toJSON(authDetail.currentUser.timezone),
 			EMessages.RESOURCE_UPDATED_SUCCESSFULLY

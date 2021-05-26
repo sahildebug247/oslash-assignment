@@ -5,7 +5,6 @@ enum EMessages {
 	PROFILE_UPDATED_SUCCESSFULLY = 'Profile updated successfully.',
 	USER_COULD_NOT_BE_UPDATED = 'user could not be updated.',
 	PASSWORD_RESET_TOKEN_COULD_NOT_BE_SENT = 'Password reset token could not be sent',
-	USERNAME_SENT = 'If email exists in our database you will receive username shortly',
 	EMAIL_OR_USERNAME_ALREADY_EXISTS = 'Email or username is already in use.',
 	INVALID_CREDENTIALS = 'Invalid Credentials',
 	RESOURCE_NOT_FOUND = 'Resource not found',
@@ -26,11 +25,6 @@ enum EMessages {
 	PASSWORD_SUCCESSFULLY_RESET = 'Password was successfully reset',
 	PASSWORD_RESET_FAILED = 'Password reset failed',
 	INACTIVE_USER_ACCOUNT = 'Your account is inactive.',
-	UNVERIFIED_EMAIL = 'Your email is not verified. Verify your email first by clicking on the link sent on your email.',
-	EMAIL_CONFIRMATION_LINK_SENT = 'If email is a valid email, confirmation link will be sent.',
-	EMAIL_SUCCESSFULLY_VERIFIED = 'Email is successfully verified',
-	EMAIL_ALREADY_VERIFIED = 'Email is already verified',
-	EMAIL_TOKEN_EXPIRED_OR_UNVERIFIED = 'Either otp is invalid or has expired. Request new one',
 	PASSWORD_OTP_EXPIRED_OR_UNVERIFIED = 'Either otp is invalid or has expired. Request new one',
 	PASSWORD_RESET_OTP_SENT = 'If the email is valid, you will receive an otp to reset your password shortly.',
 	EMAIL_VERIFICATION_SENT = 'If the email is valid, you will receive a link to confirm your email shortly.',
@@ -42,6 +36,8 @@ enum EMessages {
 	INVALID_ID = 'Invalid Id',
 	RESOURCE_COULD_NOT_BE_RETRIEVED = 'Rescource could not be retrieved.',
 	LOGIN_SUCCESSFUL = 'Login Successful',
+	POST_WITH_TITLE_ALREADY_EXISTS = 'Post could not be created, post with same title already exists.',
+	POST_COULD_NOT_BE_CREATED = 'Post could not be created',
 }
 
 export default EMessages;

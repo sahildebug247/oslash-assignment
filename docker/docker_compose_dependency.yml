@@ -1,0 +1,14 @@
+# @format
+
+version: '3.7'
+services:
+    db:
+        image: postgres:13.3
+        ports:
+            - '5433:5432'
+        environment:
+            - POSTGRES_USER=root
+            - POSTGRES_PASSWORD=root
+            - POSTGRES_DB=oslash-assignment
+        volumes:
+            - '/var/docker_volumes/oslash-assignment:/var/lib/postgresql/data'

@@ -17,21 +17,4 @@ export default class MomentUtil {
 	): string {
 		return MomentTz.tz(dateToConvert, timezoneToConvertTo).format(format);
 	}
-
-	public static async currentUnixTimeStampDifference(unixTime: number): Promise<number> {
-		const receivedTimeMomentInstance = moment.unix(unixTime);
-		if (!receivedTimeMomentInstance.isValid()) {
-			return undefined;
-		}
-		const currentTimeMomentInstance = moment().unix();
-		return currentTimeMomentInstance - receivedTimeMomentInstance.unix();
-	}
-	public static async timestampDiffInSeconds(time: Date): Promise<number> {
-		const receivedTimeMomentInstance = moment(time);
-		if (!receivedTimeMomentInstance.isValid()) {
-			return undefined;
-		}
-		const currentTimeMomentInstance = moment();
-		return moment.duration(currentTimeMomentInstance.diff(receivedTimeMomentInstance)).asSeconds();
-	}
 }

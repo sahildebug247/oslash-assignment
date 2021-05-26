@@ -1,6 +1,6 @@
 /** @format */
 
-import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
 import UserEntity from '../../db/entities/user.entity';
 import ReturnVal from '../../lib/ReturnVal';
 import AuthDetail from '../../util/decorator/controller-Authdetail.decorator';
@@ -23,26 +23,16 @@ import UserService from '../services/user.service';
 @Controller('user')
 export default class UserController {
 	constructor(private readonly userService: UserService) {}
+
 	/*
   Get Routes
 
   */
-
 	@Get('me')
 	@UseGuards(AuthenticationGuard)
 	@HandleReturnVal
 	public async getMe(@AuthDetail() authDetail: IAuthDetail): Promise<ReturnVal<Partial<UserEntity>>> {
 		return this.userService.getMe(authDetail);
-	}
-
-	@Post('')
-	@UseGuards(AuthenticationGuard)
-	@UseGuards(new RolesGuard([EUserRole.SUPER_ADMIN]))
-	@HandleReturnVal
-	public async register(
-		@Body(new ValidationPipe(UserRegisterSchema)) userRegisterSchema
-	): Promise<ReturnVal> {
-		return this.userService.register(userRegisterSchema);
 	}
 
 	@Post('login')
@@ -53,17 +43,17 @@ export default class UserController {
 		return this.userService.login(userLoginSchema);
 	}
 
-	@Put('updateSelf')
-	@UseGuards(AuthenticationGuard)
+	@Post('')
+	@UseGuards(AuthenticationGuard, new RolesGuard([EUserRole.SUPER_ADMIN]))
 	@HandleReturnVal
-	public async updateSelf(
-		@Body(new ValidationPipe(SelfUpdateSchema)) body,
+	public async register(
+		@Body(new ValidationPipe(UserRegisterSchema)) userRegisterSchema,
 		@AuthDetail() authDetail: IAuthDetail
-	): Promise<ReturnVal<Partial<UserEntity>>> {
-		return this.userService.updateSelf(body, authDetail);
+	): Promise<ReturnVal> {
+		return this.userService.register(userRegisterSchema, authDetail);
 	}
 
-	@Put('update-password')
+	@Put('password')
 	@UseGuards(AuthenticationGuard)
 	@HandleReturnVal
 	public async updatePassword(
@@ -74,13 +64,22 @@ export default class UserController {
 	}
 
 	@Put('deactivate')
-	@UseGuards(AuthenticationGuard)
-	@UseGuards(new RolesGuard([EUserRole.SUPER_ADMIN]))
+	@UseGuards(AuthenticationGuard, new RolesGuard([EUserRole.SUPER_ADMIN]))
 	@HandleReturnVal
 	public async deactivateUser(
-		@Body(new StringValidationPipe(EntityIdSchema)) id: string,
+		@Query('id', new StringValidationPipe(EntityIdSchema)) id: string,
 		@AuthDetail() authDetail: IAuthDetail
 	): Promise<ReturnVal<Partial<UserEntity>>> {
 		return this.userService.deactivateUser(id, authDetail);
+	}
+
+	@Put('')
+	@UseGuards(AuthenticationGuard)
+	@HandleReturnVal
+	public async updateSelf(
+		@Body(new ValidationPipe(SelfUpdateSchema)) body,
+		@AuthDetail() authDetail: IAuthDetail
+	): Promise<ReturnVal<Partial<UserEntity>>> {
+		return this.userService.updateSelf(body, authDetail);
 	}
 }

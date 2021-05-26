@@ -37,7 +37,7 @@ class ConfigService {
 			password: this.envConfig.TYPEORM_PASSWORD,
 			database: this.envConfig.TYPEORM_DATABASE,
 			port: Number.parseInt(this.envConfig.TYPEORM_PORT, 10),
-			logging: false,
+			logging: true,
 			entities: [entitiesPath],
 			migrations: [migrationPath],
 			migrationsRun: this.envConfig.TYPEORM_MIGRATIONS_RUN === 'true',
@@ -55,7 +55,6 @@ class ConfigService {
 	private validateInput(envConfig: IEnvConfigInterface): IEnvConfigInterface {
 		const envVarsSchema: Joi.ObjectSchema = Joi.object({
 			NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
-			HTTP_PORT: Joi.number().required(),
 		}).unknown(true);
 
 		const { error, value: validatedEnvConfig } = envVarsSchema.validate(envConfig);

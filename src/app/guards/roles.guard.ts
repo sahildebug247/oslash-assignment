@@ -10,6 +10,7 @@ class RolesGuard implements CanActivate {
 
 	public canActivate(context: ExecutionContext): boolean {
 		const request = context.switchToHttp().getRequest();
+
 		const user = request.user;
 		const index = this.roles.indexOf(user.role);
 		if (index !== -1) {

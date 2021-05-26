@@ -10,7 +10,7 @@ import ModelEntity from './model.entity';
 @Entity({ name: ETable.USERS })
 class UserEntity extends ModelEntity<UserEntity> {
 	@IsString()
-	@Column()
+	@Column({ type: 'citext' })
 	public password: string;
 
 	@IsString()
@@ -50,7 +50,7 @@ class UserEntity extends ModelEntity<UserEntity> {
 
 	public toJSON(
 		timezone = this.timezone,
-		includes = ['id', 'name', 'username', 'timezone', 'createdAt', 'updatedAt'],
+		includes = ['id', 'name', 'username', 'timezone', 'status', 'createdAt', 'updatedAt'],
 		skips = []
 	): Partial<UserEntity> {
 		const d = super.toJSON(timezone, includes, skips);

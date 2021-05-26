@@ -1,11 +1,13 @@
 /** @format */
 
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import ConfigService from '../services/config.service';
-import ConfigModule from './config.module';
 import AuthModule from './auth.module';
+import ConfigModule from './config.module';
+import { LogModule } from './log.module';
+import { PostModule } from './post.module';
 import { UserModule } from './user.module';
 
 @Module({
@@ -20,6 +22,8 @@ import { UserModule } from './user.module';
 		ScheduleModule.forRoot(),
 		AuthModule,
 		UserModule,
+		PostModule,
+		LogModule,
 	],
 	providers: [],
 	exports: [],

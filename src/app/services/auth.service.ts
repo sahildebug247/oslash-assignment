@@ -31,7 +31,7 @@ export default class AuthService {
 			if (!user) return ReturnVal.error(EMessages.INVALID_AUTHENTICATION_TOKEN, 401);
 			if (user.status !== EUserStatus.ACTIVE)
 				return ReturnVal.error(EMessages.INACTIVE_USER_ACCOUNT, 403);
-			if (!user) return ReturnVal.error(EMessages.UNVERIFIED_EMAIL, 403);
+			if (!user) return ReturnVal.error(EMessages.INVALID_AUTHENTICATION_TOKEN, 403);
 			return ReturnVal.success(user);
 		} catch (e) {
 			return ReturnVal.error(EMessages.INVALID_AUTHENTICATION_TOKEN, 401);
